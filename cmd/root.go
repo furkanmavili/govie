@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"fmt"
-	"log"
 	"os"
 
 	"github.com/furkanmavili/govie/pkg/database"
@@ -16,15 +15,9 @@ var Dbs database.Service
 var rootCmd = &cobra.Command{
 	Use:   "app [command]",
 	Short: "Govie is searcher of movie/tv shows",
-	PersistentPreRun: func(cmd *cobra.Command, args []string) {
-		if Dbs == nil {
-			log.Fatalf("Error: dbs interface is not defined.\n")
-		}
-	},
 	PersistentPostRun: func(cmd *cobra.Command, args []string) {
 		if Dbs != nil {
 			_ = Dbs.Close()
-			Dbs = nil
 		}
 	},
 }

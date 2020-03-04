@@ -58,6 +58,7 @@ func (s *sqlite) Close() error {
 	return s.db.Close()
 }
 
+// TODO: owner'ı çok sonra düzelt.
 func (s *sqlite) CreateList(listName string) error {
 	currentTime := time.Now()
 	query := "INSERT INTO lists(name, date, owner) VALUES(?, ?, ?)"
@@ -83,29 +84,8 @@ func (s *sqlite) DeleteList(listName string) error {
 	return nil
 }
 
-func (s *sqlite) IsValid(listName string) bool {
-	rows, err := s.db.Query("select name from lists")
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer rows.Close()
-	for rows.Next() {
-		var name string
-		err = rows.Scan(&name)
-		if err != nil {
-			log.Fatal(err)
-		}
-		if name == listName {
-			return false
-		}
-	}
-	err = rows.Err()
-	if err != nil {
-		log.Fatal(err)
-	}
-	return true
-}
-
+// it shows all lists with name and date
+// TODO: add how much movie consist
 func (s *sqlite) ShowListsAll() error {
 	rows, err := s.db.Query("select name, date from lists")
 	if err != nil {
@@ -129,6 +109,11 @@ func (s *sqlite) ShowListsAll() error {
 	return nil
 }
 
+// TODO: shows the given list with movies. moviename ve ratingi göster
+func (s *sqlite) ShowList(listName string) {
+
+}
+
 func (s *sqlite) SaveMovie(movieName, listName string, rate float32) error {
 	currentTime := time.Now()
 	query := "INSERT INTO movies(name, rate, date, listID) VALUES(?, ?, ?, ?)"
@@ -142,6 +127,34 @@ func (s *sqlite) SaveMovie(movieName, listName string, rate float32) error {
 	}
 	_, err = s.db.Exec(query, movieName, rate, date, listID)
 	return err
+}
+
+// TODO: verilen listedeki movieyi sil.interface'e eklemeyi unutma.
+func (s *sqlite) DeleteMovie(movieName, listName string) {
+
+}
+
+func (s *sqlite) IsValid(listName string) bool {
+	rows, err := s.db.Query("select name from lists")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var name string
+		err = rows.Scan(&name)
+		if err != nil {
+			log.Fatal(err)
+		}
+		if name == listName {
+			return false
+		}
+	}
+	err = rows.Err()
+	if err != nil {
+		log.Fatal(err)
+	}
+	return true
 }
 
 func findListID(listName string, s *sqlite) (int, error) {
