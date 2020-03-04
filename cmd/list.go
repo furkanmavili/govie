@@ -5,15 +5,16 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/fatih/color"
 	"github.com/spf13/cobra"
 )
 
 func init() {
 	rootCmd.AddCommand(listCmd)
+	rootCmd.AddCommand(createListCmd)
+	rootCmd.AddCommand(deleteListCmd)
+	rootCmd.AddCommand(exportListCmd)
 	listCmd.AddCommand(listAllCmd)
-	listCmd.AddCommand(createListCmd)
-	listCmd.AddCommand(deleteListCmd)
-	listCmd.AddCommand(exportListCmd)
 }
 
 var listCmd = &cobra.Command{
@@ -50,11 +51,12 @@ var createListCmd = &cobra.Command{
 		return nil
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		err := Dbs.CreateList(args[0])
+		// err := Dbs.CreateList(args[0])
+		err := Dbs.CreateTable(args[0])
 		if err != nil {
-			fmt.Println("hata")
+			fmt.Println(err)
 		}
-		fmt.Println("List oluşturuldu:", args[0])
+		color.Green("  %s has created.", args[0])
 	},
 }
 
@@ -76,10 +78,11 @@ var deleteListCmd = &cobra.Command{
 		if err != nil {
 			fmt.Println(err)
 		}
-		fmt.Println("List silindi:", args[0])
+		fmt.Println("List deleted:", args[0])
 	},
 }
 
+// List exportlamayı eklemeyi unutma,daha sonra
 var exportListCmd = &cobra.Command{
 	Use:   "export [list name]",
 	Short: "export list as .csv file",
@@ -95,7 +98,7 @@ var exportListCmd = &cobra.Command{
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		new := strings.Join(args, "_")
-		fmt.Printf("List export edildi: %s.csv\n", new)
+		fmt.Printf("List has exported: %s.csv\n", new)
 	},
 }
 

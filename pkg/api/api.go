@@ -34,7 +34,6 @@ var ErrNotFound = errors.New("couldn't find")
 // SearchMovie search movie using omdb api
 func SearchMovie(movieName string, searchType string) error {
 	link := "http://www.omdbapi.com/?apikey=3b62e5e2&t=" + strings.Replace(movieName, " ", "+", -1)
-	fmt.Println(link)
 	movie, err := Unmarshal(link)
 	if err != nil {
 		return err

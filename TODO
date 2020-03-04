@@ -5,11 +5,12 @@ task 1:
     ☐ suggest.go'da alınan genre tipine göre 20 film getir ve içlerinden
     3 tanesini kulllanıcıya öner.
     ☐ upcoming -t / type=movies gibi upcoming movie or tvleri göster
+    ☐ api tokenlerini koddan çıkarıp system env lere ekle ordan çek.
 
 task 2:
     ✔ kullanıcının movie/tv show listesi tutmasını ekleyebilirim.add commandla eklyeceği filmi ve -r / --rate flaglede puanını verebilir ve bunu bi yerde tutabilirim.(hangi listeye ekleyeceğinide girmesi gerekiyo.) @done(2020-02-29 21:20) @project(task 2)
     ✔ listeleri nerde tutacam? @done(2020-02-29 12:16) @project(task 2)
-    ☐ maybe kullanıcı giriş ve kayıt??????????
+    ✘ maybe kullanıcı giriş ve kayıt?????????? @cancelled(2020-03-04 22:51) @project(task 2)
     ✔ list create [args] komutuyla liste oluşturabilir. @done(2020-02-29 19:08) @project(task 2)
     ✔ list all ile bütün listeleri görüntüle. List.Show() @done(2020-02-29 19:08) @project(task 2)
     ☐ listeleri görüntülerken şekilli artistik bişeyler.
@@ -18,11 +19,11 @@ task 2:
     ✔ listelerin oluşturulma tarihi, ayrıca dizi filmlerinde eklenme tarihlerini tut ve listeleri gösterirken bu tarihleride göster. @done(2020-02-29 21:20) @project(task 2)
     ☐ list --export  listeyi csv dosyası listeadı.csv
     şeklinde kaydetmeyi sağlar.
-    ☐ sadece tek bir listeyi görüntülemeyi ayarla. list mylist gibi
-    ☐ listeyi görüntülerken şekilli şeyler
+    ✔ sadece tek bir listeyi görüntülemeyi ayarla. list mylist gibi @done(2020-03-04 22:51) @project(task 2)
+    ✔ listeyi görüntülerken şekilli şeyler @done(2020-03-04 22:51) @project(task 2)
     ☐ dizilerde hangi bölümde kaldığını hatırlamak içinde bişeyler ayarla
-    
-
+    ☐ delete movie
+    ☐ update movie
 
 task3 :
     ✔ bu task2 deki şeyler postgresql or etc. bir veritabanıyla entegre et. @done(2020-02-29 19:07) @project(task3 )

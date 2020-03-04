@@ -2,9 +2,10 @@ package cmd
 
 import (
 	"errors"
-	"fmt"
+	"log"
 	"strings"
 
+	"github.com/fatih/color"
 	"github.com/spf13/cobra"
 )
 
@@ -31,7 +32,8 @@ var addCmd = &cobra.Command{
 		movieName := strings.Join(args, " ")
 		err := Dbs.SaveMovie(movieName, listName, rate)
 		if err != nil {
-			fmt.Println(err)
+			log.Fatal(err)
 		}
+		color.Green("  %s added to %s", movieName, listName)
 	},
 }

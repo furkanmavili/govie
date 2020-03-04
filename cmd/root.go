@@ -13,12 +13,16 @@ import (
 var Dbs database.Service
 
 var rootCmd = &cobra.Command{
-	Use:   "app [command]",
+	Use:   "govie [command]",
 	Short: "Govie is searcher of movie/tv shows",
+	Args:  cobra.MinimumNArgs(1),
 	PersistentPostRun: func(cmd *cobra.Command, args []string) {
 		if Dbs != nil {
 			_ = Dbs.Close()
 		}
+	},
+	Run: func(cmd *cobra.Command, args []string) {
+		fmt.Println(args)
 	},
 }
 

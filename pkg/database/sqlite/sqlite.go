@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+	"strings"
 	"time"
 
 	"github.com/furkanmavili/govie/pkg/database"
@@ -12,7 +13,6 @@ import (
 
 type sqlite struct {
 	db *sql.DB
-	tx *sql.Tx
 }
 
 func New() (database.Service, error) {
@@ -24,23 +24,11 @@ func New() (database.Service, error) {
 		return nil, err
 	}
 	_, err = db.Exec(
-		`CREATE TABLE IF NOT EXISTS users(
-            userID INTEGER PRIMARY KEY,
-            'username' TEXT NOT NULL
-        );
-         CREATE TABLE IF NOT EXISTS lists(
+		`CREATE TABLE IF NOT EXISTS lists(
            listID INTEGER PRIMARY KEY,
            'name' TEXT NOT NULL,
-           date TEXT,
-           owner NOT NULL REFERENCES users(userID)
-         );
-        CREATE TABLE IF NOT EXISTS movies(
-			movieID INTEGER PRIMARY KEY,
-			'name' TEXT NOT NULL,
-			rate INTEGER,
-			date TEXT,
-            listID NOT NULL REFERENCES lists(listID)
-		  );`)
+           date TEXT
+		   );`)
 
 	if err != nil {
 		_ = db.Close()
@@ -51,21 +39,25 @@ func New() (database.Service, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &sqlite{db, nil}, nil
+	return &sqlite{db}, nil
 }
 
 func (s *sqlite) Close() error {
 	return s.db.Close()
 }
 
-// TODO: owner'ı çok sonra düzelt.
-func (s *sqlite) CreateList(listName string) error {
-	currentTime := time.Now()
-	query := "INSERT INTO lists(name, date, owner) VALUES(?, ?, ?)"
-	name := listName
-	date := currentTime.Format("01-02-2006")
-	owner := 1
-	_, err := s.db.Exec(query, name, date, owner)
+// CreateTable method is creat table and table name is listName. this method is DONE.
+func (s *sqlite) CreateTable(listName string) error {
+	query := fmt.Sprintf(`CREATE TABLE IF NOT EXISTS %s(
+		movieID INTEGER PRIMARY KEY,
+		'movieName' TEXT NOT NULL,
+		rate INTEGER,
+		date TEXT,
+		listID NOT NULL REFERENCES lists(listID)
+	  );
+	  INSERT INTO lists(name, date) VALUES(?, ?);`, listName)
+	currentTime := time.Now().Format("01-02-2006")
+	_, err := s.db.Exec(query, listName, currentTime)
 	return err
 }
 
@@ -73,7 +65,6 @@ func (s *sqlite) DeleteList(listName string) error {
 
 	stmt, err := s.db.Prepare("delete from lists where name = ?")
 	if err != nil {
-		log.Fatal(err)
 		return err
 	}
 	defer stmt.Close()
@@ -85,7 +76,7 @@ func (s *sqlite) DeleteList(listName string) error {
 }
 
 // it shows all lists with name and date
-// TODO: add how much movie consist
+// TODO: add how much movie consist also print properly.
 func (s *sqlite) ShowListsAll() error {
 	rows, err := s.db.Query("select name, date from lists")
 	if err != nil {
@@ -109,14 +100,57 @@ func (s *sqlite) ShowListsAll() error {
 	return nil
 }
 
-// TODO: shows the given list with movies. moviename ve ratingi göster
-func (s *sqlite) ShowList(listName string) {
-
+type movie struct {
+	name string
+	rate int
+	date string
 }
 
+// ShowList prints context of given list. this method is DONE.
+func (s *sqlite) ShowList(listName string) error {
+	query := fmt.Sprintf("SELECT movieName, rate, date from %s", listName)
+	rows, err := s.db.Query(query)
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+
+	var movies []movie
+	longest := 0
+	for rows.Next() {
+		var name string
+		var rate int
+		var date string
+
+		err = rows.Scan(&name, &rate, &date)
+		if err != nil {
+			return err
+		}
+		if len(name) > longest {
+			longest = len(name)
+		}
+		m := movie{name, rate, date}
+		movies = append(movies, m)
+	}
+
+	si := strings.Repeat("-", longest)
+	fmt.Println("-------------------" + si)
+	for i, v := range movies {
+		l := strings.Repeat(" ", longest-len(v.name))
+		fmt.Printf("> %d. %s "+l+"%d★   %s\n", i+1, v.name, v.rate, v.date)
+	}
+	fmt.Println("-------------------" + si)
+	return nil
+}
+
+// SaveMovie saves the movie to given list. this method is DONE.
 func (s *sqlite) SaveMovie(movieName, listName string, rate float32) error {
+	err := checkMovie(s, movieName, listName)
+	if err != nil {
+		return err
+	}
 	currentTime := time.Now()
-	query := "INSERT INTO movies(name, rate, date, listID) VALUES(?, ?, ?, ?)"
+	query := fmt.Sprintf("INSERT INTO %s(movieName, rate, date, listID) VALUES(?, ?, ?, ?)", listName)
 	date := currentTime.Format("01-02-2006")
 	listID, err := findListID(listName, s)
 	if err != nil {
@@ -130,10 +164,36 @@ func (s *sqlite) SaveMovie(movieName, listName string, rate float32) error {
 }
 
 // TODO: verilen listedeki movieyi sil.interface'e eklemeyi unutma.
-func (s *sqlite) DeleteMovie(movieName, listName string) {
-
+func (s *sqlite) DeleteMovie(movieName, listName string) error {
+	return nil
 }
 
+// checkMovie checks the movieName in given list, return error if its exist.
+func checkMovie(s *sqlite, movieName, listName string) error {
+	query := fmt.Sprintf("SELECT movieName from %s", listName)
+	rows, err := s.db.Query(query)
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var name string
+		err = rows.Scan(&name)
+		if err != nil {
+			return err
+		}
+		if name == movieName {
+			return fmt.Errorf("%s already exist in %s", movieName, listName)
+		}
+	}
+	err = rows.Err()
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// IsValid checks the given listName in lists table
 func (s *sqlite) IsValid(listName string) bool {
 	rows, err := s.db.Query("select name from lists")
 	if err != nil {
@@ -157,6 +217,7 @@ func (s *sqlite) IsValid(listName string) bool {
 	return true
 }
 
+// findListID finds id of given list
 func findListID(listName string, s *sqlite) (int, error) {
 	rows, err := s.db.Query("select listID, name from lists")
 	if err != nil {
@@ -176,5 +237,4 @@ func findListID(listName string, s *sqlite) (int, error) {
 		}
 	}
 	return 0, nil
-
 }
