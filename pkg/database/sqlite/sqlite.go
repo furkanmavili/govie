@@ -165,6 +165,16 @@ func (s *sqlite) SaveMovie(movieName, listName string, rate float32) error {
 
 // TODO: verilen listedeki movieyi sil.interface'e eklemeyi unutma.
 func (s *sqlite) DeleteMovie(movieName, listName string) error {
+	query := fmt.Sprintf("delete from %s where movieName = ?", listName)
+	stmt, err := s.db.Prepare(query)
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+	_, err = stmt.Exec(movieName)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 

@@ -12,7 +12,7 @@ import (
 func init() {
 	rootCmd.AddCommand(listCmd)
 	rootCmd.AddCommand(createListCmd)
-	rootCmd.AddCommand(deleteListCmd)
+	listCmd.AddCommand(deleteListCmd)
 	rootCmd.AddCommand(exportListCmd)
 	listCmd.AddCommand(listAllCmd)
 }
@@ -51,6 +51,7 @@ var createListCmd = &cobra.Command{
 		return nil
 	},
 	Run: func(cmd *cobra.Command, args []string) {
+		fmt.Println(cmd)
 		// err := Dbs.CreateList(args[0])
 		err := Dbs.CreateTable(args[0])
 		if err != nil {

@@ -11,6 +11,10 @@ import (
 
 func init() {
 	rootCmd.AddCommand(addCmd)
+	rootCmd.AddCommand(deleteMovieCmd)
+
+	deleteMovieCmd.Flags().StringVar(&listName, "list", "default", "enter list name")
+	deleteMovieCmd.MarkFlagRequired("list")
 	addCmd.Flags().StringVar(&listName, "list", "default", "enter list name")
 	addCmd.MarkFlagRequired("list")
 	addCmd.Flags().Float32VarP(&rate, "rate", "r", 1, "type like add --rate = 5.4")
@@ -35,5 +39,19 @@ var addCmd = &cobra.Command{
 			log.Fatal(err)
 		}
 		color.Green("  %s added to %s", movieName, listName)
+	},
+}
+
+var deleteMovieCmd = &cobra.Command{
+	Use:   "delete",
+	Short: "delete movies from lists",
+	Args:  cobra.MinimumNArgs(1),
+	Run: func(cmd *cobra.Command, args []string) {
+		movieName := strings.Join(args, " ")
+		err := Dbs.DeleteMovie(movieName, listName)
+		if err != nil {
+			log.Fatal(err)
+		}
+		color.Green("  %s deleted from %s", movieName, listName)
 	},
 }
