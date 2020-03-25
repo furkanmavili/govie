@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"os"
 	"strconv"
 )
 
@@ -31,7 +32,12 @@ func FilterGenre(genreName string) {
 		fmt.Println("Aradığınız genre bulunamadı.")
 	}
 	genreID := strconv.Itoa(genre)
-	var link = "https://api.themoviedb.org/3/discover/movie?api_key=a585bd999f72b48ddc0dfd46e70a7b80&language=en-US&sort_by=vote_average.desc&include_adult=false&include_video=false&page=1&vote_count.gte=1000&with_genres=" + genreID
+	token := os.Getenv("MOVIEDB_APIKEY")
+	if token == "" {
+		fmt.Println("moviedb api key env variable couldn't find")
+	}
+	s := fmt.Sprintf("https://api.themoviedb.org/3/discover/movie?api_key=%s&language=en-US&sort_by=vote_average.desc&include_adult=false&include_video=false&page=1&vote_count.gte=1000&with_genres=", token)
+	var link = s + genreID
 	resp, err := http.Get(link)
 	if err != nil {
 		fmt.Println("couldn't get given link")

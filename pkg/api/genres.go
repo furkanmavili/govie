@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"os"
 	"strings"
 )
 
@@ -33,9 +34,9 @@ type genres struct {
 
 var movieGenres genres
 var tvGenres genres
-
-var movieLink = "https://api.themoviedb.org/3/genre/movie/list?api_key=a585bd999f72b48ddc0dfd46e70a7b80&language=en-US"
-var tvLink = "https://api.themoviedb.org/3/genre/tv/list?api_key=a585bd999f72b48ddc0dfd46e70a7b80&language=en-US"
+var token = os.Getenv("MOVIEDB_APIKEY")
+var movieLink = fmt.Sprintf("https://api.themoviedb.org/3/genre/movie/list?api_key=%s&language=en-US", token)
+var tvLink = fmt.Sprintf("https://api.themoviedb.org/3/genre/tv/list?api_key=%s&language=en-US", token)
 
 // SaveGenres creating list of genres struct
 func SaveGenres() {

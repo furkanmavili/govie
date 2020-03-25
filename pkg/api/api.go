@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"os"
 	"strings"
 )
 
@@ -33,7 +34,12 @@ var ErrNotFound = errors.New("couldn't find")
 
 // SearchMovie search movie using omdb api
 func SearchMovie(movieName string, searchType string) error {
-	link := "http://www.omdbapi.com/?apikey=3b62e5e2&t=" + strings.Replace(movieName, " ", "+", -1)
+	token := os.Getenv("OMDB_APIKEY")
+	if token == "" {
+		return fmt.Errorf("environment variable couldn't find")
+	}
+	s := fmt.Sprintf("http://www.omdbapi.com/?apikey=%s&t=", token)
+	link := s + strings.Replace(movieName, " ", "+", -1)
 	movie, err := Unmarshal(link)
 	if err != nil {
 		return err
